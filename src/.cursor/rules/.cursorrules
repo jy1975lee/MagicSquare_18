@@ -1,0 +1,190 @@
+################################################################################
+project:
+  name: "MagicSquare"
+  description: "4x4 매직스퀘어의 입력 검증, 누락값 계산, 합 34 검증을 수행하는 Python 프로젝트"
+  language: "Python"
+  python_version: "3.10+"
+  architecture_pattern: "ECB"
+  methodology: "Dual-Track UI + Logic TDD with MLOps"
+
+################################################################################
+code_style:
+  python_version: "3.10+"
+  style_guide: "PEP8 strict compliance"
+  type_hints:
+    required: true
+    scope:
+      - "all function parameters"
+      - "all return values"
+  docstring:
+    style: "Google"
+    required_for: "all public methods"
+  max_line_length: 88
+
+################################################################################
+architecture:
+  pattern: "ECB"
+  layers:
+    boundary:
+      responsibility:
+        - "사용자 입력 수집 및 출력(UI, API, CLI) 처리"
+        - "입력/출력 포맷 변환"
+      may_depend_on:
+        - "control"
+      must_not_depend_on:
+        - "entity (direct)"
+      must_not_do:
+        - "도메인 규칙/검증/계산 로직 구현"
+    control:
+      responsibility:
+        - "유스케이스 조합 및 흐름 제어"
+        - "boundary 요청을 entity 연산으로 연결"
+      may_depend_on:
+        - "entity"
+      must_not_depend_on:
+        - "boundary"
+      must_not_do:
+        - "UI 입출력 처리 로직 포함"
+    entity:
+      responsibility:
+        - "4x4 magic square 도메인 규칙 관리"
+        - "입력 검증"
+        - "누락값 계산"
+        - "합 34 검증"
+        - "순수 규칙/검증/계산 로직 유지"
+      may_depend_on: []
+      must_not_depend_on:
+        - "boundary"
+        - "control"
+  dependency_direction:
+    allowed:
+      - "boundary -> control"
+      - "control -> entity"
+    forbidden:
+      - "entity -> control"
+      - "entity -> boundary"
+      - "control -> boundary"
+
+################################################################################
+tdd_rules:
+  red_phase:
+    description: "테스트를 먼저 작성하고, 실패를 확인해 요구사항을 고정하는 단계"
+    rules:
+      - "기능 코드 작성 전에 테스트 케이스를 먼저 작성한다."
+      - "새 테스트는 기대한 이유로 실패해야 한다."
+      - "실패 원인은 테스트 시나리오와 직접 연결되어야 한다."
+    must_not:
+      - "테스트 실패 확인 없이 다음 단계로 진행"
+      - "테스트 없이 기능 코드 선작성"
+      - "한 번에 여러 기능 요구를 섞어 테스트 작성"
+  green_phase:
+    description: "최소 구현으로 테스트를 통과시키는 단계"
+    rules:
+      - "현재 실패 중인 테스트를 통과시키는 최소 코드만 작성한다."
+      - "불필요한 추상화/최적화는 미룬다."
+      - "통과 후 전체 테스트 스위트를 다시 실행한다."
+    must_not:
+      - "리팩터링 수행"
+      - "미래 요구사항을 위한 선구현"
+      - "테스트 범위를 벗어난 코드 추가"
+  refactor_phase:
+    description: "기능 변경 없이 코드 구조를 개선하는 단계"
+    rules:
+      - "외부 관찰 가능한 동작은 유지한다."
+      - "리팩터링 전후 전체 테스트가 모두 통과해야 한다."
+      - "테스트 커버리지는 기준치 이상을 유지한다."
+    must_not:
+      - "새 기능 추가"
+      - "기존 테스트 의도 변경"
+      - "커버리지 저하 허용"
+
+################################################################################
+testing:
+  framework: "pytest"
+  pattern: "AAA (Arrange-Act-Assert)"
+  coverage_minimum: 80
+  priority_order:
+    - "entity"
+    - "control"
+    - "boundary"
+  strategy:
+    - "UI 구현 전 순수 로직(entity/control) 테스트를 먼저 작성한다."
+    - "AAA 패턴(Arrange-Act-Assert)을 모든 테스트에 명시한다."
+    - "mock 남용을 금지하고 순수 함수 테스트를 우선한다."
+  fixture_scope:
+    default: "function"
+    rules:
+      - "테스트 간 상태 공유 금지"
+      - "무거운 공용 리소스만 module/session 스코프 허용"
+      - "fixture는 목적이 명확한 최소 단위로 분리"
+  naming_convention:
+    test_prefix_required: true
+    file_pattern: "test_*.py"
+    function_pattern: "test_*"
+
+################################################################################
+forbidden:
+  - pattern: "print()"
+    reason: "디버그 출력이 표준 출력 오염 및 테스트 안정성 저하를 유발한다."
+    alternative: "logging 모듈 사용 (환경별 log level 관리)"
+  - pattern: "mock 남용"
+    reason: "실제 도메인 규칙 검증을 회피하고 테스트 신뢰도를 떨어뜨린다."
+    alternative: "순수 함수 기반의 실제 입력/출력 검증 우선"
+  - pattern: "숨은 상태(암묵적 전역/가변 공유 상태)"
+    reason: "재현성과 테스트 독립성을 해친다."
+    alternative: "명시적 데이터 전달(파라미터/반환값)과 불변 데이터 구조 사용"
+  - pattern: "하드코딩 상수 (매직 넘버/매직 문자열)"
+    reason: "의도 파악이 어렵고 변경 비용이 커진다."
+    alternative: "의미 있는 상수명으로 분리하거나 설정값/도메인 상수로 관리"
+  - pattern: "except:"
+    reason: "모든 예외를 숨겨 원인 분석과 장애 대응을 어렵게 만든다."
+    alternative: "구체적 예외 타입 명시 및 필요한 경우 재전파(raise)"
+
+################################################################################
+file_structure:
+  # MagicSquare ECB tree
+  # magic_square/
+  #   boundary/
+  #     cli/
+  #     api/
+  #   control/
+  #     use_cases/
+  #     services/
+  #   entity/
+  #     models/
+  #     rules/
+  # tests/
+  #   boundary/
+  #   control/
+  #   entity/
+  root_package: "magic_square"
+  required_directories:
+    - "magic_square/boundary/"
+    - "magic_square/control/"
+    - "magic_square/entity/"
+    - "tests/"
+  test_layout_rule: "프로덕션 레이어 구조를 tests/ 아래에 미러링한다."
+
+################################################################################
+ai_behavior:
+  before_code_generation:
+    - "관련 테스트 파일 및 기존 테스트 패턴을 먼저 확인한다."
+    - "요구사항이 ECB 어느 레이어에 속하는지 먼저 분류한다."
+    - "UI 코드 작성 전에 순수 로직(entity/control) 테스트 가능 여부를 먼저 확인한다."
+  during_code_generation:
+    - "ECB 레이어 경계를 위반하는 import/의존성을 만들지 않는다."
+    - "타입힌트 없는 함수를 생성하지 않는다."
+    - "public 메서드에는 Google 스타일 docstring을 작성한다."
+    - "Green 단계에서는 테스트 통과에 필요한 최소 코드만 작성한다."
+    - "boundary는 UI/입력/출력만 담당하게 유지한다."
+    - "control은 유스케이스 조합과 흐름 제어만 담당하게 유지한다."
+    - "entity는 순수 규칙/검증/계산만 담당하게 유지한다."
+    - "숨은 상태 대신 명시적 데이터 전달을 우선한다."
+  after_code_generation:
+    - "pytest를 실행해 변경 영향 범위를 검증한다."
+    - "커버리지가 coverage_minimum 미만으로 떨어지면 수정한다."
+    - "TDD 단계 위반이 감지되면 경고를 출력하고 진행 이유를 명시한다."
+  violation_policy:
+    tdd_rules_violation: "warn_and_require_user_confirmation"
+    ecb_boundary_violation: "block_change"
+    missing_type_hints: "block_change"
