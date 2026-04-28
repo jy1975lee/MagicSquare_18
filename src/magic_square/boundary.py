@@ -10,10 +10,20 @@ E_INPUT_SIZE = "E_INPUT_SIZE"
 E_DOMAIN_NO_SOLUTION = "E_DOMAIN_NO_SOLUTION"
 
 
+def _build_error_message(code: str, detail: str) -> str:
+    """Creates a consistent boundary error message schema."""
+    return f"{code}: {detail}"
+
+
 def validate(board: Board) -> None:
     """Validates boundary-level input shape contract (4x4)."""
     if len(board) != MATRIX_SIZE or any(len(row) != MATRIX_SIZE for row in board):
-        raise ValueError(f"{E_INPUT_SIZE}: input matrix must be {MATRIX_SIZE}x{MATRIX_SIZE}.")
+        raise ValueError(
+            _build_error_message(
+                E_INPUT_SIZE,
+                f"input matrix must be {MATRIX_SIZE}x{MATRIX_SIZE}.",
+            )
+        )
 
 
 def solve(board: Board) -> list[int]:
@@ -21,4 +31,7 @@ def solve(board: Board) -> list[int]:
 
     The domain solve logic is intentionally deferred to later TDD commits.
     """
-    raise ValueError(f"{E_DOMAIN_NO_SOLUTION}: domain solve is not implemented yet.")
+    _ = board
+    raise ValueError(
+        _build_error_message(E_DOMAIN_NO_SOLUTION, "domain solve is not implemented yet.")
+    )
