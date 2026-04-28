@@ -16,7 +16,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from magic_square.boundary import E_INPUT_SIZE, validate
+from magic_square.boundary import E_DOMAIN_NO_SOLUTION, E_INPUT_SIZE, solve, validate
 
 
 def test_ui_red_01_non_4x4_matrix_rejects_with_input_size_error() -> None:
@@ -27,6 +27,14 @@ def test_ui_red_01_non_4x4_matrix_rejects_with_input_size_error() -> None:
     # Act / Assert
     with pytest.raises(ValueError, match=E_INPUT_SIZE):
         validate(board)
+
+
+def test_ui_red_01b_solve_not_implemented_preserves_error_code_message() -> None:
+    """Regression guard: solve stub keeps current boundary error schema."""
+    board = [[0, 0, 0, 0] for _ in range(4)]
+
+    with pytest.raises(ValueError, match=E_DOMAIN_NO_SOLUTION):
+        solve(board)
 
 
 def test_ui_red_02_wrong_empty_cell_count_rejects_with_empty_count_error() -> None:
