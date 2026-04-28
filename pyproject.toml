@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "magic-square"
+version = "0.1.0"
+description = "Magic Square 4x4 TDD practice project"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PyQt6",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

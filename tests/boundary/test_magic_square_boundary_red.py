@@ -16,10 +16,17 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+from magic_square.boundary import E_INPUT_SIZE, validate
+
 
 def test_ui_red_01_non_4x4_matrix_rejects_with_input_size_error() -> None:
     """UI-RED-01: non-4x4 input → E_INPUT_SIZE; solver not called."""
-    pytest.fail("RED: UI-RED-01 — Boundary not implemented")
+    # Arrange
+    board = [[1, 2, 3], [4, 5, 6], [7, 8, 0], [9, 10, 11]]
+
+    # Act / Assert
+    with pytest.raises(ValueError, match=E_INPUT_SIZE):
+        validate(board)
 
 
 def test_ui_red_02_wrong_empty_cell_count_rejects_with_empty_count_error() -> None:
