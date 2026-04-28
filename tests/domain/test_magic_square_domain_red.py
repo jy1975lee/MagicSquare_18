@@ -16,10 +16,25 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+from magic_square.domain import MATRIX_SIZE, find_blank_coords
+
 
 def test_lg_red_01_find_blank_coords_row_major_pair() -> None:
     """LG-RED-01: find_blank_coords → exactly two positions, row-major order."""
-    pytest.fail("RED: LG-RED-01 — Domain not implemented")
+    # Arrange
+    board = [
+        [16, 2, 3, 13],
+        [5, 11, 10, 8],
+        [9, 7, 6, 0],
+        [4, 14, 0, 1],
+    ]
+
+    # Act
+    blanks = find_blank_coords(board)
+
+    # Assert
+    assert MATRIX_SIZE == 4
+    assert blanks == [(3, 4), (4, 3)]
 
 
 def test_lg_red_02_find_missing_two_numbers_sorted_low_high() -> None:
